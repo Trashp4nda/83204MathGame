@@ -1,0 +1,84 @@
+:root{
+  /* Simplified color scheme, focusing on blue/green contrast */
+  --bg:#1a202c; /* Darker blue/grey background */
+  --card:#2d3748; /* Dark grey card */
+  --accent:#4299e1; /* Primary Blue */
+  --accent2:#48bb78; /* Green for success/highlight */
+  --muted:#a0aec0; /* Lighter grey for subtle text */
+  --ok:#48bb78; /* Green */
+  --bad:#f56565; /* Red */
+}
+*{box-sizing:border-box}
+body{
+  margin:0; font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;
+  background:var(--bg); color:white;
+  display:flex;align-items:center;justify-content:center;height:100vh;padding:20px;
+}
+.wrap{width:100%;max-width:400px; /* Reduced max-width for simpler centered design */
+  display:flex;flex-direction:column;gap:18px
+}
+.card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05)}
+
+/* Simplified Header/Branding */
+header{text-align:center;margin-bottom:20px}
+h1{margin:0;font-size:26px;color:var(--accent)}
+p.lead{margin:5px 0 0;color:var(--muted);font-size:14px}
+
+/* Top Bar - simplified */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;font-size:16px}
+.pill{font-weight:700;padding:5px 10px;background:rgba(255,255,255,0.05);border-radius:6px;}
+
+/* Question Box - Main focus */
+.question-box{
+  background:rgba(255,255,255,0.05);
+  padding:25px;
+  border-radius:12px;
+  text-align:center;
+  margin-bottom:20px;
+}
+.q-what{color:var(--muted);font-size:16px;margin-bottom:5px}
+.q-text{font-weight:900;font-size:54px; /* Much larger font for the question */
+  color:white;
+  text-shadow: 0 0 10px rgba(66, 153, 225, 0.5);
+}
+
+/* Answers - 2 columns */
+.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.ans-btn{
+  padding:20px 10px; /* Larger tap area */
+  border-radius:10px;
+  background:var(--card);
+  border:2px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+  font-weight:800;
+  font-size:24px; /* Larger answer text */
+  color:white;
+  transition:all 0.1s;
+}
+.ans-btn:hover{background:rgba(255,255,255,0.05)}
+.ans-btn:active{transform:scale(0.98)}
+.ans-btn.correct{background:var(--ok);border-color:var(--ok);color:white}
+.ans-btn.wrong{background:var(--bad);border-color:var(--bad);color:white}
+
+/* Controls */
+.controls{display:flex;justify-content:center;gap:15px;margin-top:20px}
+button.main-btn{
+  padding:12px 25px;
+  border-radius:8px;
+  border:0;
+  background:var(--accent);
+  color:white;
+  font-weight:800;
+  cursor:pointer;
+  font-size:16px;
+}
+
+/* End Panel Styling */
+.result{
+  padding:20px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.1);
+  text-align:center;
+  font-size:18px;
+  font-weight:600;
+}

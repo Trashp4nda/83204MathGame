@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Math Challenge — Tap the Answer</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="wrap">
+    <main>
+      <header>
+        <h1>Math Challenge</h1>
+        <p class="lead">Tap the correct answer within 60 seconds!</p>
+      </header>
+
+      <div class="card game">
+        <div class="topbar">
+          <div class="pill">Time: <strong id="timeLeft">60</strong>s</div>
+          <div class="pill">Score: <strong id="score">0</strong></div>
+        </div>
+
+        <div id="gameContent">
+          <div class="question-box" aria-live="polite">
+            <div class="q-what">What is the result?</div>
+            <div id="question" class="q-text">1 + 1</div>
+          </div>
+  
+          <div class="answers" id="answers">
+                      </div>
+        </div>
+
+        <div id="endPanel" style="display:none;margin-top:10px">
+          <div class="result" id="endText"></div>
+        </div>
+
+        <div class="controls">
+          <button id="startBtn" class="main-btn">Start / Restart</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
