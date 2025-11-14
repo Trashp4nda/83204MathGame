@@ -1,54 +1,567 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Math Game</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-        <link rel="stylesheet" href="styling.css">
-    </head>
-    <body>
-        <div id="container">
-            <div id="score">
-                Score: <span id="scorevalue">0</span> 
-            </div>
-            <div id="correct">
-                Correct!
-            </div>
-            <div id="wrong">
-                Try Again! 
-            </div>
-            <div id="question">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QuickMath — JavaScript Math Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#7c5cff;
+      --muted:#9aa4b2;
+      --glass: rgba(255,255,255,0.03);
+      --success: #16a34a;
+      --danger: #ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg,#071021 0%, #08132a 60%);
+      color:#e6eef6;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
 
-            </div>
-            <div id="instruction">
-                Click on the correct answer:
-            </div>
-            <div id="choices">
-                <div id="box1" class="box">
+    .wrap{
+      width:100%;
+      max-width:920px;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:24px;
+    }
 
-                </div>
-                <div id="box2" class="box">
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:20px;
+      box-shadow: 0 10px 30px rgba(8,12,20,0.6);
+      border: 1px solid rgba(255,255,255,0.03);
+    }
 
-                </div>
-                <div id="box3" class="box">
+    header{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:8px;
+    }
+    .logo{
+      width:46px;height:46px;border-radius:10px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--accent),#4f9dff);
+      font-weight:800;font-size:20px;color:white;
+      box-shadow: 0 6px 18px rgba(124,92,255,0.18);
+    }
+    h1{font-size:18px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
 
-                </div>
-                <div id="box4" class="box">
+    .game-area{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      margin-top:6px;
+    }
 
-                </div>
-            </div>
-            <div id="startreset">
-                Start Game
-            </div>
-            <div id="timeremaining">
-                Time Remaining: <span id="timeremainingvalue">60</span> sec
-            </div>
-            <div id="gameover">
+    .question{
+      background:var(--glass);
+      padding:18px;border-radius:10px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .q-left{
+      display:flex;flex-direction:column;
+      gap:6px;
+    }
+    .q-what{font-size:13px;color:var(--muted)}
+    .q-text{font-weight:700;font-size:32px;letter-spacing:0.4px}
 
-            </div>
+    .controls{
+      display:flex;gap:10px;align-items:center;
+    }
+    input[type="number"]{
+      width:140px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+      background:transparent;color:inherit;font-size:16px;
+      outline:none;
+    }
+    button{
+      border:0;padding:10px 14px;border-radius:10px;background:var(--accent);
+      color:white;font-weight:700;cursor:pointer;
+      box-shadow: 0 8px 18px rgba(124,92,255,0.14);
+    }
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);font-weight:600}
+    .small{font-size:13px;padding:8px 10px}
+
+    .meta{
+      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+      margin-top:6px;
+    }
+
+    .pill{
+      padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.02);
+      font-weight:600;color:var(--muted);font-size:13px;border:1px solid rgba(255,255,255,0.02)
+    }
+    .progress-wrap{width:100%;height:12px;background:rgba(255,255,255,0.02);border-radius:999px;overflow:hidden}
+    .progress{height:100%;background:linear-gradient(90deg,var(--accent),#4f9dff);width:0%}
+
+    .feedback{
+      min-height:34px;padding:8px;border-radius:8px;display:flex;align-items:center;gap:8px;
+      font-weight:700;
+    }
+    .feedback.ok{background:rgba(22,163,74,0.12);color:var(--success);border:1px solid rgba(22,163,74,0.12)}
+    .feedback.bad{background:rgba(239,68,68,0.09);color:var(--danger);border:1px solid rgba(239,68,68,0.06)}
+
+    .sidebar{
+      display:flex;flex-direction:column;gap:12px;
+    }
+    .card .section-title{font-weight:700;font-size:13px;color:var(--muted);margin-bottom:8px}
+    .score{
+      display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    }
+    .big{font-size:28px;font-weight:800}
+    .small-muted{font-size:13px;color:var(--muted)}
+
+    .settings{display:flex;flex-direction:column;gap:8px}
+    .settings .row{display:flex;gap:8px;align-items:center}
+    select{background:transparent;border-radius:8px;padding:8px;border:1px solid rgba(255,255,255,0.03);color:inherit}
+    .hint{font-size:13px;color:var(--muted)}
+
+    footer{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+
+    @media (max-width:920px){
+      .wrap{grid-template-columns:1fr; padding-bottom:40px}
+      .sidebar{order:-1}
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="logo">QM</div>
+        <div>
+          <h1>QuickMath</h1>
+          <p class="lead">Type the answer & press Submit — built with HTML, CSS, JS</p>
         </div>
-        <script src="javascript.js">
+      </header>
 
-        </script>
-    </body>
+      <div class="game-area">
+        <div class="question" aria-live="polite">
+          <div class="q-left">
+            <div class="q-what">Solve:</div>
+            <div class="q-text" id="questionText">8 + 7</div>
+            <div class="meta">
+              <div class="pill">Operation: <span id="opLabel">Addition</span></div>
+              <div class="pill">Difficulty: <span id="difLabel">Easy</span></div>
+            </div>
+          </div>
+
+          <div class="controls" role="region" aria-label="Answer controls">
+            <input id="answerInput" type="number" inputmode="numeric" placeholder="Your answer" />
+            <button id="submitBtn">Submit</button>
+            <button id="skipBtn" class="ghost small">Skip</button>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback" style="display:none;"></div>
+
+        <div>
+          <div class="section-title">Progress</div>
+          <div class="progress-wrap" aria-hidden="true">
+            <div class="progress" id="progressBar"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:8px">
+            <div class="small-muted">Round <span id="roundNum">1</span> / <span id="roundTotal">10</span></div>
+            <div class="small-muted">Time left: <span id="timeLeft">30</span>s</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+          <button id="startBtn" class="ghost small">New Game</button>
+          <button id="hintBtn" class="small ghost">Hint</button>
+        </div>
+
+        <footer>Tip: use keyboard Enter to submit. High score stored locally.</footer>
+      </div>
+    </div>
+
+    <aside class="sidebar card">
+      <div>
+        <div class="section-title">Scoreboard</div>
+        <div class="score">
+          <div>
+            <div class="small-muted">Score</div>
+            <div class="big" id="score">0</div>
+          </div>
+          <div style="text-align:right">
+            <div class="small-muted">High score</div>
+            <div id="highScore" class="big">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Settings</div>
+        <div class="settings">
+          <div class="row">
+            <label for="mode">Operation:</label>
+            <select id="mode">
+              <option value="mixed">Mixed</option>
+              <option value="add">Addition</option>
+              <option value="sub">Subtraction</option>
+              <option value="mul">Multiplication</option>
+              <option value="div">Division</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="difficulty">Difficulty:</label>
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="rounds">Rounds:</label>
+            <select id="rounds">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="timer">Timer (s):</label>
+            <select id="timer">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+
+          <div class="hint">Lives left: <span id="lives">3</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Controls</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="resetScore" class="ghost small">Reset High Score</button>
+          <button id="exportState" class="ghost small">Export Results</button>
+        </div>
+      </div>
+
+      <div style="margin-top:8px" class="small-muted">
+        Created for class assignment • Press Enter to submit • Hosted easily on GitHub Pages
+      </div>
+    </aside>
+  </div>
+
+<script>
+(() => {
+  // Elements
+  const qText = document.getElementById('questionText');
+  const opLabel = document.getElementById('opLabel');
+  const difLabel = document.getElementById('difLabel');
+  const answerInput = document.getElementById('answerInput');
+  const submitBtn = document.getElementById('submitBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const feedback = document.getElementById('feedback');
+  const progressBar = document.getElementById('progressBar');
+  const roundNum = document.getElementById('roundNum');
+  const roundTotal = document.getElementById('roundTotal');
+  const timeLeftEl = document.getElementById('timeLeft');
+  const scoreEl = document.getElementById('score');
+  const highScoreEl = document.getElementById('highScore');
+  const modeSel = document.getElementById('mode');
+  const difSel = document.getElementById('difficulty');
+  const roundsSel = document.getElementById('rounds');
+  const timerSel = document.getElementById('timer');
+  const livesEl = document.getElementById('lives');
+  const startBtn = document.getElementById('startBtn');
+  const hintBtn = document.getElementById('hintBtn');
+  const resetScore = document.getElementById('resetScore');
+  const exportState = document.getElementById('exportState');
+
+  // Game state
+  let state = {
+    score: 0,
+    highScore: 0,
+    round: 0,
+    totalRounds: parseInt(roundsSel.value),
+    currentAnswer: null,
+    timer: parseInt(timerSel.value),
+    timerId: null,
+    lives: 3,
+  };
+
+  // Init from localStorage
+  function loadHighScore() {
+    const v = parseInt(localStorage.getItem('qm_highscore')||'0',10);
+    state.highScore = isNaN(v)?0:v;
+    highScoreEl.textContent = state.highScore;
+  }
+  loadHighScore();
+
+  function saveHighScore() {
+    if (state.score > state.highScore) {
+      state.highScore = state.score;
+      localStorage.setItem('qm_highscore', String(state.highScore));
+      highScoreEl.textContent = state.highScore;
+    }
+  }
+
+  // Utilities: random integer inclusive
+  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
+
+  function updateUIQuestion(opName,diffLabelStr,questionStr){
+    opLabel.textContent = opName;
+    difLabel.textContent = diffLabelStr;
+    qText.textContent = questionStr;
+  }
+
+  function setFeedback(text,type='ok'){
+    feedback.style.display='flex';
+    feedback.className = 'feedback ' + (type==='ok' ? 'ok' : 'bad');
+    feedback.textContent = text;
+    // Hide after 1.4s
+    clearTimeout(feedback._t);
+    feedback._t = setTimeout(()=>{ feedback.style.display='none'; }, 1400);
+  }
+
+  function generateQuestion(){
+    // options from settings
+    const operation = modeSel.value; // add, sub, mul, div, mixed
+    const difficulty = difSel.value; // easy, medium, hard
+
+    let op = operation;
+    if (op === 'mixed') {
+      const arr = ['add','sub','mul','div'];
+      op = arr[rand(0,arr.length-1)];
+    }
+
+    // Difficulty controls ranges
+    let a,b;
+    if (difficulty === 'easy'){ a = rand(1,9); b = rand(1,9) }
+    else if (difficulty === 'medium'){ a = rand(5,20); b = rand(2,12) }
+    else { a = rand(10,99); b = rand(3,30) }
+
+    let questionText = '', answer = 0, opName = '';
+    switch(op){
+      case 'add':
+        opName = 'Addition';
+        answer = a + b;
+        questionText = `${a} + ${b}`;
+        break;
+      case 'sub':
+        opName = 'Subtraction';
+        // ensure non-negative result for nicer UX
+        if (b > a) [a,b] = [b,a];
+        answer = a - b;
+        questionText = `${a} − ${b}`;
+        break;
+      case 'mul':
+        opName = 'Multiplication';
+        answer = a * b;
+        questionText = `${a} × ${b}`;
+        break;
+      case 'div':
+        opName = 'Division';
+        // produce integer division by setting a = b * q
+        const q = rand(2, (difficulty==='hard'?12:8));
+        b = rand(2, (difficulty==='hard'?30:12));
+        a = b * q;
+        answer = q;
+        questionText = `${a} ÷ ${b}`;
+        break;
+      default:
+        opName = 'Mixed';
+        answer = a + b;
+        questionText = `${a} + ${b}`;
+    }
+
+    state.currentAnswer = answer;
+    updateUIQuestion(opName, difficulty.charAt(0).toUpperCase()+difficulty.slice(1), questionText);
+  }
+
+  function startTimer(){
+    clearInterval(state.timerId);
+    state.timer = parseInt(timerSel.value,10);
+    timeLeftEl.textContent = state.timer;
+    state.timerId = setInterval(()=>{
+      state.timer--;
+      timeLeftEl.textContent = state.timer;
+      if(state.timer <= 0){
+        clearInterval(state.timerId);
+        handleWrong('Time up!');
+      }
+    },1000);
+  }
+
+  function stopTimer(){
+    clearInterval(state.timerId);
+    state.timerId = null;
+  }
+
+  function updateProgress(){
+    const percent = Math.round((state.round / state.totalRounds) * 100);
+    progressBar.style.width = percent + '%';
+    roundNum.textContent = state.round+1;
+    roundTotal.textContent = state.totalRounds;
+  }
+
+  function handleCorrect(){
+    setFeedback('Correct! +10');
+    state.score += 10;
+    scoreEl.textContent = state.score;
+    saveHighScore();
+    stopTimer();
+    nextRound();
+  }
+
+  function handleWrong(reason='Wrong'){
+    setFeedback(reason, 'bad');
+    state.lives -= 1;
+    livesEl.textContent = state.lives;
+    stopTimer();
+    if (state.lives <= 0) {
+      endGame(false);
+    } else {
+      // small penalty
+      state.score = Math.max(0, state.score - 3);
+      scoreEl.textContent = state.score;
+      // proceed to next
+      nextRound();
+    }
+  }
+
+  function submitAnswer(){
+    const val = answerInput.value.trim();
+    if (val === '') { setFeedback('Enter an answer', 'bad'); return; }
+    // allow numeric with decimals but compare numerically
+    const user = Number(val);
+    const correct = Number(state.currentAnswer);
+    // For division we expect integers; allow small float tolerance
+    if (Math.abs(user - correct) < 1e-6) {
+      handleCorrect();
+    } else {
+      handleWrong('Incorrect');
+    }
+    answerInput.value = '';
+    answerInput.focus();
+  }
+
+  function nextRound(){
+    state.round++;
+    if (state.round >= state.totalRounds) {
+      endGame(true);
+      return;
+    }
+    updateProgress();
+    generateQuestion();
+    answerInput.value = '';
+    answerInput.focus();
+    // start timer for new question
+    startTimer();
+  }
+
+  function endGame(won=true){
+    stopTimer();
+    saveHighScore();
+    if (won) {
+      setFeedback(`Game finished! Your score: ${state.score}`, 'ok');
+    } else {
+      setFeedback(`Game over! Your score: ${state.score}`, 'bad');
+    }
+    // lock actions until New Game
+  }
+
+  function newGame(){
+    // read settings
+    state.totalRounds = parseInt(roundsSel.value,10);
+    state.round = 0;
+    state.score = 0;
+    state.lives = 3;
+    scoreEl.textContent = state.score;
+    livesEl.textContent = state.lives;
+    roundTotal.textContent = state.totalRounds;
+    updateProgress();
+    loadHighScore(); // update highscore display
+    generateQuestion();
+    startTimer();
+    answerInput.focus();
+  }
+
+  // Hints
+  function showHint(){
+    const ans = state.currentAnswer;
+    if (ans === null) { setFeedback('No question right now', 'bad'); return; }
+    setFeedback('Hint: first digit of answer is ' + String(ans)[0], 'ok');
+    // small points penalty
+    state.score = Math.max(0, state.score - 1);
+    scoreEl.textContent = state.score;
+  }
+
+  // Export state JSON
+  function exportResults(){
+    const data = {
+      date: new Date().toISOString(),
+      score: state.score,
+      highScore: state.highScore,
+      rounds: state.totalRounds,
+      mode: modeSel.value,
+      difficulty: difSel.value
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'quickmath-result.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 600);
+  }
+
+  // Event listeners
+  submitBtn.addEventListener('click', submitAnswer);
+  skipBtn.addEventListener('click', ()=>{
+    setFeedback('Skipped -5', 'bad');
+    state.score = Math.max(0, state.score - 5);
+    scoreEl.textContent = state.score;
+    stopTimer();
+    nextRound();
+  });
+
+  answerInput.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter') submitAnswer();
+  });
+
+  startBtn.addEventListener('click', newGame);
+  hintBtn.addEventListener('click', showHint);
+  resetScore.addEventListener('click', ()=>{
+    localStorage.removeItem('qm_highscore');
+    state.highScore = 0;
+    highScoreEl.textContent = 0;
+    setFeedback('High score reset', 'ok');
+  });
+  exportState.addEventListener('click', exportResults);
+
+  // update UI when settings change
+  modeSel.addEventListener('change', ()=>{ generateQuestion(); });
+  difSel.addEventListener('change', ()=>{ generateQuestion(); });
+  roundsSel.addEventListener('change', ()=>{ state.totalRounds = parseInt(roundsSel.value,10); updateProgress(); });
+  timerSel.addEventListener('change', ()=>{ state.timer = parseInt(timerSel.value,10); timeLeftEl.textContent = state.timer; });
+
+  // Start first game automatically
+  newGame();
+
+})();
+</script>
+</body>
 </html>
